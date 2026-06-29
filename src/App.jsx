@@ -17,15 +17,14 @@ const getTimeLeft = () => {
   }
 }
 
-const introVideo        = '/Assets/Videos/Intro-Video.mp4'
-const firstFrameImage   = '/Assets/Images/intro-first-frame.jpg'
-const invitationBackground = '/Assets/Images/bg-s.png'
-const flowerGif = '/Assets/Images/flower.webp'
-const bismillahImage = '/Assets/Images/Bismillah.png'
+const introVideo      = '/Assets/Videos/Intro-Video.mp4'
+const firstFrameImage = '/Assets/Images/intro-first-frame.jpg'
+const flowerGif       = '/Assets/Images/flower.webp'
+const bismillahImage  = '/Assets/Images/Bismillah.png'
 const coupleNamesImage = '/Assets/Images/CoupleNames.png'
-const paperImage = '/Assets/Images/paper.png'
-const treeImage = '/Assets/Images/tree.png'
-const hallImage = '/Assets/Images/hall.png'
+const paperImage      = '/Assets/Images/paper.png'
+const treeImage       = '/Assets/Images/tree.png'
+const hallImage       = '/Assets/Images/hall.png'
 
 function App() {
   const videoRef = useRef(null)
@@ -59,11 +58,11 @@ function App() {
   const startIntro = async () => {
     if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
     isStartingRef.current = true
-    setHasStarted(true) // hide tap indicator immediately on touch
+    setHasStarted(true)
     try {
       await videoRef.current.play()
     } catch {
-      setHasStarted(false) // re-show indicator if play() is rejected
+      setHasStarted(false)
     } finally {
       isStartingRef.current = false
     }
@@ -73,11 +72,14 @@ function App() {
     <>
       <main
         className={`invitation${isFinished ? ' invitation--visible' : ''}`}
-        style={{ '--bg-image': `url(${invitationBackground})` }}
         aria-label="دعوة زفاف"
       >
+        {/* Real DOM element for the background so z-index is unambiguous */}
+        <div className="invitation__bg" aria-hidden="true" />
+
         <section className="hero" aria-label="رسالة ترحيبية">
           <img
+            key={overlayGone ? 'flower-playing' : 'flower-waiting'}
             className="hero__flower"
             src={flowerGif}
             alt=""
@@ -191,7 +193,11 @@ function App() {
             }
           }}
           onTransitionEnd={(e) => {
-            if (e.propertyName === 'opacity') setOverlayGone(true)
+            // Guard against events that bubble up from child elements (e.g. the cover image).
+            // Only remove the overlay when the overlay's OWN opacity transition completes.
+            if (e.propertyName === 'opacity' && e.target === e.currentTarget) {
+              setOverlayGone(true)
+            }
           }}
           aria-label="تشغيل فيديو دعوة الزفاف"
         >
