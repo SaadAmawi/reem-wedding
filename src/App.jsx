@@ -18,7 +18,8 @@ const getTimeLeft = () => {
 }
 
 const introVideo = '/Assets/Videos/Intro-Video.mp4'
-const invitationBackground = '/Assets/Images/Background.png'
+const invitationBackground = '/Assets/Images/bg-s.png'
+const flowerGif = '/Assets/Images/flower.webp'
 const bismillahImage = '/Assets/Images/Bismillah.png'
 const coupleNamesImage = '/Assets/Images/CoupleNames.png'
 const paperImage = '/Assets/Images/paper.png'
@@ -37,19 +38,6 @@ function App() {
     return () => clearInterval(id)
   }, [])
 
-  const startIntro = async () => {
-    if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
-    isStartingRef.current = true
-    try {
-      await videoRef.current.play()
-      setHasStarted(true)
-    } catch {
-      setHasStarted(false)
-    } finally {
-      isStartingRef.current = false
-    }
-  }
-
   useEffect(() => {
     if (!isFinished) return
     const observer = new IntersectionObserver(
@@ -65,13 +53,66 @@ function App() {
     return () => observer.disconnect()
   }, [isFinished])
 
+  const startIntro = async () => {
+    if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
+    isStartingRef.current = true
+    try {
+      await videoRef.current.play()
+      setHasStarted(true)
+    } catch {
+      setHasStarted(false)
+    } finally {
+      isStartingRef.current = false
+    }
+  }
+
+  if (!isFinished) {
+    return (
+      <div
+        className="intro"
+        role="button"
+        tabIndex={0}
+        onClick={startIntro}
+        onPointerUp={startIntro}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            startIntro()
+          }
+        }}
+        aria-label="تشغيل فيديو دعوة الزفاف"
+      >
+        <video
+          ref={videoRef}
+          className="intro__video"
+          src={introVideo}
+          preload="auto"
+          onLoadedMetadata={() => {
+            if (videoRef.current) videoRef.current.currentTime = 0.001
+          }}
+          playsInline
+          muted
+          disablePictureInPicture
+          controls={false}
+          onEnded={() => setIsFinished(true)}
+        />
+      </div>
+    )
+  }
+
   return (
     <main
-      className={`invitation${isFinished ? ' invitation--visible' : ''}`}
-      style={isFinished ? { '--bg-image': `url(${invitationBackground})` } : undefined}
+      className="invitation invitation--visible"
+      style={{ '--bg-image': `url(${invitationBackground})` }}
       aria-label="دعوة زفاف"
     >
       <section className="hero" aria-label="رسالة ترحيبية">
+        <img
+          className="hero__flower"
+          src={flowerGif}
+          alt=""
+          aria-hidden="true"
+        />
         <img
           className="hero__bismillah"
           src={bismillahImage}
@@ -86,11 +127,11 @@ function App() {
 
       <section className="families" dir="rtl" lang="ar" aria-label="دعوة الأسر">
         <div className="families__text">
-          <p className="families__honor"    data-fade style={{ transitionDelay: '0s' }}>تتشرف</p>
-          <p className="families__name"     data-fade style={{ transitionDelay: '0.25s' }}>عائلة السيد/ أحمد حمزة الشمالي</p>
-          <p className="families__and"      data-fade style={{ transitionDelay: '0.45s' }}>و</p>
-          <p className="families__name"     data-fade style={{ transitionDelay: '0.65s' }}>عائلة السيد/ شهاب سالم الحبيلي</p>
-          <p className="families__invite"   data-fade style={{ transitionDelay: '0.85s' }}>بدعوتكم لحضور حفل زفاف نجليهما</p>
+          <p className="families__honor"  data-fade style={{ transitionDelay: '0s' }}>تتشرف</p>
+          <p className="families__name"   data-fade style={{ transitionDelay: '0.25s' }}>عائلة السيد/ أحمد حمزة الشمالي</p>
+          <p className="families__and"    data-fade style={{ transitionDelay: '0.45s' }}>و</p>
+          <p className="families__name"   data-fade style={{ transitionDelay: '0.65s' }}>عائلة السيد/ شهاب سالم الحبيلي</p>
+          <p className="families__invite" data-fade style={{ transitionDelay: '0.85s' }}>بدعوتكم لحضور حفل زفاف نجليهما</p>
         </div>
         <img
           className="families__couple-img"
@@ -118,7 +159,7 @@ function App() {
             ))}
           </div>
         </div>
-        <img className="venue__tree"  src={treeImage}  alt="" aria-hidden="true" />
+        <img className="venue__tree" src={treeImage} alt="" aria-hidden="true" />
 
         <div className="venue__content">
           <p className="venue__blessing" dir="rtl" lang="ar" data-fade>
@@ -161,38 +202,9 @@ function App() {
           src={hallImage}
           alt="قاعة الليسيلي"
           data-fade
-          style={{ transitionDelay: '0' }}
+          style={{ transitionDelay: '0s' }}
         />
       </section>
-
-      {!isFinished && (
-        <div
-          className="intro"
-          role="button"
-          tabIndex={0}
-          onClick={startIntro}
-          onPointerUp={startIntro}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              startIntro()
-            }
-          }}
-          aria-label="تشغيل فيديو دعوة الزفاف"
-        >
-          <video
-            ref={videoRef}
-            className="intro__video"
-            src={introVideo}
-            preload="auto"
-            playsInline
-            muted
-            disablePictureInPicture
-            controls={false}
-            onEnded={() => setIsFinished(true)}
-          />
-        </div>
-      )}
     </main>
   )
 }
