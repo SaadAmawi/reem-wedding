@@ -29,6 +29,8 @@ const hallImage       = '/Assets/Images/hall.png'
 function App() {
   const videoRef = useRef(null)
   const isStartingRef = useRef(false)
+  const durationRef = useRef(0)
+  const finishTimerRef = useRef(null)
   const [hasStarted, setHasStarted] = useState(false)
   const [coverDone, setCoverDone] = useState(false)
   const [isFinished, setIsFinished] = useState(false)
@@ -42,17 +44,34 @@ function App() {
 
   useEffect(() => {
     if (!isFinished) return
+    const reveal = (el) => el.classList.add('is-visible')
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => {
         if (e.isIntersecting) {
-          e.target.classList.add('is-visible')
+          reveal(e.target)
           observer.unobserve(e.target)
         }
       }),
       { threshold: 0.15 }
     )
-    document.querySelectorAll('[data-fade]').forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
+    const els = document.querySelectorAll('[data-fade]')
+    els.forEach((el) => observer.observe(el))
+
+    // Safety net: IntersectionObserver intermittently fails to deliver the
+    // initial callback on iOS Safari. Since every visible piece of the hero
+    // starts at opacity:0, that failure leaves a blank page. If nothing has
+    // been revealed shortly after the intro finishes, assume the observer is
+    // dead and force everything visible so the invitation never stays blank.
+    const fallback = setTimeout(() => {
+      if (!document.querySelector('[data-fade].is-visible')) {
+        els.forEach(reveal)
+      }
+    }, 1200)
+
+    return () => {
+      observer.disconnect()
+      clearTimeout(fallback)
+    }
   }, [isFinished])
 
   // Fallback: iOS Safari sometimes drops transitionend on fixed elements.
@@ -63,12 +82,55 @@ function App() {
     return () => clearTimeout(id)
   }, [isFinished])
 
+  // Once finished, stop the video so iOS releases its compositing layer.
+  // A still-playing/decoding fixed <video> is the main trigger for the
+  // stale-paint "white box" left behind after the overlay is removed.
+  useEffect(() => {
+    if (!isFinished) return
+    if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
+    const v = videoRef.current
+    if (v) {
+      try { v.pause() } catch { /* ignore */ }
+    }
+  }, [isFinished])
+
+  // After the overlay is removed from the DOM, iOS Safari can leave a stale
+  // paint of the old fixed video layer (the "white box" the content scrolls
+  // behind). Force a repaint/recomposite so the content shows immediately
+  // without the user having to scroll.
+  useEffect(() => {
+    if (!overlayGone) return
+    const forceRepaint = () => {
+      const el = document.querySelector('.invitation')
+      if (el) {
+        el.style.transform = 'translateZ(0)'
+        // Read back layout to flush the change, then clear it next frame.
+        void el.offsetHeight
+        requestAnimationFrame(() => { el.style.transform = '' })
+      }
+      // A 1px scroll nudge reliably forces iOS to recomposite.
+      window.scrollBy(0, 1)
+      window.scrollBy(0, -1)
+    }
+    requestAnimationFrame(forceRepaint)
+  }, [overlayGone])
+
   const startIntro = async () => {
     if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
     isStartingRef.current = true
     setHasStarted(true)
     try {
+      // Ensure muted is set on the element itself — React's `muted` prop is
+      // not always reflected to the DOM, and iOS requires it for inline play.
+      videoRef.current.muted = true
       await videoRef.current.play()
+      // Guaranteed finish: iOS Safari can drop BOTH `ended` and `timeupdate`,
+      // which would leave the intro overlay stuck on screen forever. Schedule a
+      // hard finish based on the clip's duration (the media events fire first
+      // in the normal case, and setIsFinished is idempotent).
+      if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
+      const ms = (durationRef.current || 12) * 1000 + 1200
+      finishTimerRef.current = setTimeout(() => setIsFinished(true), ms)
     } catch {
       setHasStarted(false)
     } finally {
@@ -216,7 +278,8 @@ function App() {
             className="intro__video"
             src={introVideo}
             preload="auto"
-            onLoadedMetadata={() => {
+            onLoadedMetadata={(e) => {
+              durationRef.current = e.currentTarget.duration || 0
               if (videoRef.current) videoRef.current.currentTime = 0.001
             }}
             playsInline
@@ -224,6 +287,16 @@ function App() {
             disablePictureInPicture
             controls={false}
             onEnded={() => setIsFinished(true)}
+            onTimeUpdate={(e) => {
+              // Fallback for iOS Safari, where the `ended` event is frequently
+              // dropped for inline videos. Treat "reached the last frame" as
+              // finished. setIsFinished is idempotent, so onEnded firing too
+              // is harmless.
+              const v = e.currentTarget
+              if (v.duration && v.currentTime >= v.duration - 0.25) {
+                setIsFinished(true)
+              }
+            }}
           />
           {!coverDone && (
             <img
