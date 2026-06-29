@@ -1,0 +1,332 @@
+/* ── Page shell ─────────────────────────────────────── */
+.invitation {
+  position: relative;
+  min-height: 100svh;
+  overflow-x: clip;
+  background-color: #f5ede3;
+}
+
+/* Fading background via pseudo-element so opacity is transitionable */
+.invitation::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+  background-image: var(--bg-image);
+  background-size: 130%;
+  background-position: 50% -100px;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 1.6s ease-out;
+  pointer-events: none;
+}
+
+.invitation--visible::before {
+  opacity: 1;
+}
+
+/* ── Hero — first full viewport ─────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  z-index: 1;
+}
+
+/* Bismillah — upper third */
+.hero__bismillah {
+  position: absolute;
+  top: 28vh;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 65%;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  display: block;
+}
+
+/* Message block — lower portion */
+.hero__message {
+  position: absolute;
+  bottom: 36vh;
+  left: 0;
+  right: 0;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.hero__line {
+  font-family: "Kufam", sans-serif;
+  color: #5d6741;
+  margin: 0;
+  line-height: 1.75;
+  opacity: 0;
+}
+
+.hero__line--1,
+.hero__line--2 {
+  font-size: 1rem;
+  font-weight: 200;
+}
+
+.hero__line--3 {
+  font-weight: 200;
+  font-size: 1rem;
+  margin-top: 1.65em;
+}
+
+/* ── Families / second section ─────────────────────── */
+.families {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 2.5rem 60px;
+  text-align: center;
+  z-index: 1;
+}
+
+.families__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.families__honor,
+.families__name,
+.families__and,
+.families__invite {
+  font-family: 'Kufam', sans-serif;
+  font-weight: 400;
+  color: #5d6741;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.families__honor  { font-size: 1rem; }
+.families__name   { font-size: 1rem; }
+.families__and    { font-size: 1rem; margin: 0.1em 0; }
+.families__invite { font-size: 1rem; margin-top: 3.6em; }
+
+.families__couple-img {
+  margin-top: -20px;
+  width: 108%;
+  mix-blend-mode: multiply;
+}
+
+/* ── Venue / third section ──────────────────────────── */
+.venue {
+  position: relative;
+  min-height: 62svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: clip;
+  z-index: 1;
+  padding-top: 2vh;
+}
+
+.venue__paper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.venue__paper-img {
+  width: 100%;
+  display: block;
+}
+
+.venue__countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  direction: rtl;
+}
+
+.venue__countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.venue__countdown-number {
+  font-family: 'Kufam', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f0e8d8;
+  line-height: 1;
+}
+
+.venue__countdown-label {
+  font-family: 'Kufam', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: #ddd4c0;
+  letter-spacing: 0.02em;
+}
+
+.venue__tree {
+  position: absolute;
+  left: 0px;
+  bottom: 32%;
+  width: 102%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.venue__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem 2rem;
+  margin-top: 400px;
+}
+
+.venue__blessing {
+  font-family: 'Kufam', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #5d6741;
+  margin: 0 0 6.4rem;
+}
+
+.venue__details {
+  display: flex;
+  justify-content: end;
+  gap: 3rem;
+}
+
+.venue__detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  font-family: 'Kufam', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #5d6741;
+  text-align: center;
+}
+
+.venue__detail svg {
+  width: 56px;
+  height: 56px;
+  color: #5d6741;
+}
+
+.venue__hall {
+  width: 100%;
+  display: block;
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Scroll fade-in ─────────────────────────────────── */
+[data-fade] {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.95s ease-out, transform 0.95s ease-out;
+}
+
+[data-fade].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Sequential fade-ins (triggered on --visible) ───── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.invitation--visible .hero__bismillah {
+  animation: fadeInUp 1.4s 0.4s ease-out both;
+}
+
+.invitation--visible .hero__line--1 {
+  animation: fadeInUp 1.2s 1.6s ease-out both;
+}
+
+.invitation--visible .hero__line--2 {
+  animation: fadeInUp 1.2s 2.8s ease-out both;
+}
+
+.invitation--visible .hero__line--3 {
+  animation: fadeInUp 1.2s 4s ease-out both;
+}
+
+/* ── Video intro overlay ────────────────────────────── */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: block;
+  width: 100%;
+  height: 100svh;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+  appearance: none;
+}
+
+.intro:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.9);
+  outline-offset: -8px;
+}
+
+.intro__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.intro__video::-webkit-media-controls,
+.intro__video::-webkit-media-controls-panel,
+.intro__video::-webkit-media-controls-play-button,
+.intro__video::-webkit-media-controls-start-playback-button {
+  display: none;
+  opacity: 0;
+  appearance: none;
+}
+
+/* ── Desktop frame ──────────────────────────────────── */
+@media (min-width: 520px) {
+  body {
+    background: #1d1713;
+  }
+
+  .invitation {
+    width: min(100%, 430px);
+    margin: 0 auto;
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
+  }
+
+  .intro {
+    left: 50%;
+    width: min(100%, 430px);
+    transform: translateX(-50%);
+  }
+}
