@@ -41,7 +41,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!isFinished) return
+    if (!overlayGone) return
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -53,7 +53,7 @@ function App() {
     )
     document.querySelectorAll('[data-fade]').forEach((el) => observer.observe(el))
     return () => observer.disconnect()
-  }, [isFinished])
+  }, [overlayGone])
 
   const startIntro = async () => {
     if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
@@ -89,11 +89,13 @@ function App() {
             className="hero__bismillah"
             src={bismillahImage}
             alt="بسم الله الرحمن الرحيم"
+            data-fade
+            style={{ transitionDelay: '0.4s' }}
           />
           <div className="hero__message" dir="rtl" lang="ar">
-            <p className="hero__line hero__line--1">إلى من لامست قلوبهم شغاف قلوبنا</p>
-            <p className="hero__line hero__line--2">اليوم نقاسمكم سرورنا و جميل شعورنا</p>
-            <p className="hero__line hero__line--3">صحبة العمر، أحباء الروح، بكل الحب</p>
+            <p className="hero__line hero__line--1" data-fade style={{ transitionDelay: '1.6s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
+            <p className="hero__line hero__line--2" data-fade style={{ transitionDelay: '2.8s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
+            <p className="hero__line hero__line--3" data-fade style={{ transitionDelay: '4s'   }}>صحبة العمر، أحباء الروح، بكل الحب</p>
           </div>
         </section>
 

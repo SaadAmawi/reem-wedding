@@ -269,24 +269,6 @@ body {
   transform: none;
 }
 
-/* ── Sequential fade-ins (triggered when --visible is added) ── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.invitation--visible .hero__bismillah {
-  animation: fadeInUp 1.4s 0.4s ease-out both;
-}
-.invitation--visible .hero__line--1 {
-  animation: fadeInUp 1.2s 1.6s ease-out both;
-}
-.invitation--visible .hero__line--2 {
-  animation: fadeInUp 1.2s 2.8s ease-out both;
-}
-.invitation--visible .hero__line--3 {
-  animation: fadeInUp 1.2s 4s ease-out both;
-}
 
 /* ── Video intro overlay ────────────────────────────── */
 .intro {
