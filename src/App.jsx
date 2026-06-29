@@ -17,7 +17,8 @@ const getTimeLeft = () => {
   }
 }
 
-const introVideo = '/Assets/Videos/Intro-Video.mp4'
+const introVideo        = '/Assets/Videos/Intro-Video.mp4'
+const firstFrameImage   = '/Assets/Images/intro-first-frame.jpg'
 const invitationBackground = '/Assets/Images/bg-s.png'
 const flowerGif = '/Assets/Images/flower.webp'
 const bismillahImage = '/Assets/Images/Bismillah.png'
@@ -30,6 +31,7 @@ function App() {
   const videoRef = useRef(null)
   const isStartingRef = useRef(false)
   const [hasStarted, setHasStarted] = useState(false)
+  const [coverDone, setCoverDone] = useState(false)
   const [isFinished, setIsFinished] = useState(false)
   const [overlayGone, setOverlayGone] = useState(false)
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
@@ -57,11 +59,11 @@ function App() {
   const startIntro = async () => {
     if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
     isStartingRef.current = true
+    setHasStarted(true) // hide tap indicator immediately on touch
     try {
       await videoRef.current.play()
-      setHasStarted(true)
     } catch {
-      setHasStarted(false)
+      setHasStarted(false) // re-show indicator if play() is rejected
     } finally {
       isStartingRef.current = false
     }
@@ -207,6 +209,15 @@ function App() {
             controls={false}
             onEnded={() => setIsFinished(true)}
           />
+          {!coverDone && (
+            <img
+              className={`intro__cover${hasStarted ? ' intro__cover--hidden' : ''}`}
+              src={firstFrameImage}
+              alt=""
+              aria-hidden="true"
+              onTransitionEnd={() => setCoverDone(true)}
+            />
+          )}
         </div>
       )}
     </>
