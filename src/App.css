@@ -1,3 +1,7 @@
+body {
+  background-color: #f5ede3;
+}
+
 /* ── Page shell ─────────────────────────────────────── */
 .invitation {
   position: relative;
@@ -301,6 +305,14 @@
   background: #000;
   cursor: pointer;
   appearance: none;
+  opacity: 1;
+  transition: opacity 0.7s ease-out;
+}
+
+.intro--fading {
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
 }
 
 .intro:focus-visible {
