@@ -41,7 +41,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!overlayGone) return
+    if (!isFinished) return
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -53,7 +53,15 @@ function App() {
     )
     document.querySelectorAll('[data-fade]').forEach((el) => observer.observe(el))
     return () => observer.disconnect()
-  }, [overlayGone])
+  }, [isFinished])
+
+  // Fallback: iOS Safari sometimes drops transitionend on fixed elements.
+  // Force overlayGone after the transition duration so the overlay is cleaned up.
+  useEffect(() => {
+    if (!isFinished) return
+    const id = setTimeout(() => setOverlayGone(true), 900)
+    return () => clearTimeout(id)
+  }, [isFinished])
 
   const startIntro = async () => {
     if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
