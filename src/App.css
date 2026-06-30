@@ -38,7 +38,7 @@ body {
 .hero {
   position: relative;
   min-height: 100vh;
-  min-height: 100svh;
+  min-height: 140svh;
   z-index: 1;
 }
 
@@ -55,7 +55,7 @@ body {
 /* Bismillah — upper third */
 .hero__bismillah {
   position: absolute;
-  top: 28%;
+  top: 32%;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -68,7 +68,7 @@ body {
 /* Message block — lower portion */
 .hero__message {
   position: absolute;
-  bottom: 36%;
+  bottom: 45%;
   left: 0;
   right: 0;
   padding: 0 2rem;
@@ -76,8 +76,9 @@ body {
 }
 
 .hero__line {
-  font-family: "Kufam", sans-serif;
+  font-family: "Katibeh", serif;
   color: #5d6741;
+  font-size: 2rem;
   margin: 0;
   line-height: 1.75;
   opacity: 0;
@@ -85,13 +86,13 @@ body {
 
 .hero__line--1,
 .hero__line--2 {
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 200;
 }
 
 .hero__line--3 {
   font-weight: 200;
-  font-size: 1rem;
+  font-size: 1.3rem;
   margin-top: 1.65em;
 }
 
@@ -119,17 +120,17 @@ body {
 .families__name,
 .families__and,
 .families__invite {
-  font-family: 'Kufam', sans-serif;
+  font-family: "Katibeh", serif;
   font-weight: 400;
   color: #5d6741;
   margin: 0;
   line-height: 1.6;
 }
 
-.families__honor  { font-size: 1rem; }
-.families__name   { font-size: 1rem; }
-.families__and    { font-size: 1rem; margin: 0.1em 0; }
-.families__invite { font-size: 1rem; margin-top: 3.6em; }
+.families__honor  { font-size: 1.3rem; }
+.families__name   { font-size: 1.3rem; }
+.families__and    { font-size: 1.3rem; margin: 0.1em 0; }
+.families__invite { font-size: 1.3rem; margin-top: 3.6em; }
 
 .families__couple-img {
   margin-top: -20px;
@@ -185,7 +186,7 @@ body {
   font-family: 'Kufam', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f0e8d8;
+  color: #ffffff;
   line-height: 1;
 }
 
@@ -193,7 +194,7 @@ body {
   font-family: 'Kufam', sans-serif;
   font-size: 0.6rem;
   font-weight: 500;
-  color: #ddd4c0;
+  color: #ffffff;
   letter-spacing: 0.02em;
 }
 
@@ -217,11 +218,12 @@ body {
 }
 
 .venue__blessing {
-  font-family: 'Kufam', sans-serif;
-  font-size: 1.1rem;
+  font-family: "Katibeh", serif;
+  font-size: 1.5rem;
   font-weight: 400;
   color: #5d6741;
   margin: 0 0 6.4rem;
+  margin-left:160px;
 }
 
 .venue__details {
@@ -270,6 +272,15 @@ body {
 }
 
 
+/* Lock scrolling while the intro overlay is shown. */
+html.intro-lock,
+html.intro-lock body {
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
 /* ── Video intro overlay ────────────────────────────── */
 .intro {
   position: fixed;
@@ -279,6 +290,7 @@ body {
   width: 100%;
   height: 100vh;
   height: 100svh;
+  height: 100lvh; /* cover the largest viewport so no strip shows if the bar hides */
   padding: 0;
   border: 0;
   overflow: hidden;
@@ -335,6 +347,51 @@ body {
   opacity: 0;
 }
 
+/* ── Music toggle — subtle bottom corner control ────── */
+.music-toggle {
+  position: fixed;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  right: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(245, 237, 227, 0.55);
+  color: #5d6741;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  animation: music-toggle-in 0.6s ease-out both;
+}
+
+.music-toggle:hover,
+.music-toggle:focus-visible {
+  opacity: 0.95;
+  outline: none;
+}
+
+.music-toggle:active {
+  transform: scale(0.92);
+}
+
+.music-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes music-toggle-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 0.45; transform: none; }
+}
+
 /* ── Desktop frame ──────────────────────────────────── */
 @media (min-width: 520px) {
   body {
@@ -351,5 +408,10 @@ body {
     left: 50%;
     width: min(100%, 430px);
     transform: translateX(-50%);
+  }
+
+  /* Keep the toggle pinned to the phone frame's edge, not the viewport. */
+  .music-toggle {
+    right: max(16px, calc(50% - 215px + 16px));
   }
 }
