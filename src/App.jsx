@@ -43,6 +43,8 @@ function App() {
   const songDataPromiseRef = useRef(null)
   const songBufferPromiseRef = useRef(null)
   const songStartPromiseRef = useRef(null)
+  const flowerBlobRef = useRef(null)
+  const [flowerSrc, setFlowerSrc] = useState(null)
   const [hasStarted, setHasStarted] = useState(false)
   const [coverDone, setCoverDone] = useState(false)
   const [isFinished, setIsFinished] = useState(false)
@@ -63,6 +65,29 @@ function App() {
       })
     }
   }, [])
+
+  // Download the flower WebP bytes up front (while the intro plays). We DON'T
+  // render it yet — an animated WebP plays through once and can't be restarted,
+  // so showing it now would burn the animation behind the intro overlay.
+  useEffect(() => {
+    let cancelled = false
+    fetch(flowerGif)
+      .then((r) => r.blob())
+      .then((blob) => { if (!cancelled) flowerBlobRef.current = blob })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
+  // The moment the flower becomes visible (overlay gone), hand the <img> a fresh
+  // blob URL. A brand-new URL forces the browser to decode the WebP from frame
+  // 0, so the animation reliably plays from the start exactly when it's seen.
+  useEffect(() => {
+    if (!overlayGone) return
+    const blob = flowerBlobRef.current
+    const url = blob ? URL.createObjectURL(blob) : flowerGif
+    setFlowerSrc(url)
+    return () => { if (url.startsWith('blob:')) URL.revokeObjectURL(url) }
+  }, [overlayGone])
 
   useEffect(() => {
     if (!isFinished) return
@@ -153,32 +178,14 @@ function App() {
     requestAnimationFrame(forceRepaint)
   }, [overlayGone])
 
-  // Build and wake Web Audio from the original gesture. A silent oscillator
-  // keeps the context active while iOS hands media playback to the intro video.
-  const setupAudioEngine = useCallback(() => {
-    if (audioCtxRef.current) return audioCtxRef.current
-    try {
-      const AC = window.AudioContext || window.webkitAudioContext
-      if (!AC) return null
-      const ctx = new AC()
-      const gain = ctx.createGain()
-      gain.gain.value = 0
-      gain.connect(ctx.destination)
-
-      const keepAliveGain = ctx.createGain()
-      const keepAlive = ctx.createOscillator()
-      keepAliveGain.gain.value = 0
-      keepAlive.connect(keepAliveGain).connect(ctx.destination)
-      keepAlive.start()
-
-      audioCtxRef.current = ctx
-      gainRef.current = gain
-      keepAliveRef.current = keepAlive
-      return ctx
-    } catch {
-      return null
-    }
-  }, [])
+  // NOTE: Web Audio is intentionally disabled. The intro video carries an audio
+  // track, so iOS hands it the shared audio session and parks our AudioContext
+  // in the non-standard 'interrupted' state — which can only be resumed by a
+  // fresh user gesture. That's exactly why the song would only play after the
+  // mute/unmute button. Returning null routes the song through the plain
+  // <audio> element instead (unlocked muted during the tap, unmuted after the
+  // intro). The lower volume is baked into song.mp3 since iOS ignores .volume.
+  const setupAudioEngine = useCallback(() => null, [])
 
   const loadSongBuffer = useCallback((ctx) => {
     if (!ctx) return Promise.reject(new Error('Web Audio unavailable'))
@@ -201,7 +208,8 @@ function App() {
     const gain = gainRef.current
     if (!ctx || !gain) return
 
-    if (ctx.state === 'suspended') {
+    // Resume for any non-running state, including iOS's 'interrupted'.
+    if (ctx.state !== 'running') {
       await ctx.resume().catch(() => {})
     }
 
@@ -251,7 +259,7 @@ function App() {
     if (!audio) return
     try { audio.currentTime = SONG_START } catch { /* not seekable yet */ }
     audio.muted = false
-    audio.volume = SONG_VOLUME
+    audio.volume = 1 // volume is baked into song.mp3
     audio.play().catch(() => {})
   }, [isFinished, musicOn, startBufferedSong])
 
@@ -264,11 +272,15 @@ function App() {
     // before the first await, then decode the preloaded song during the intro.
     const ctx = setupAudioEngine()
     if (ctx) {
-      if (ctx.state === 'suspended') ctx.resume().catch(() => {})
+      if (ctx.state !== 'running') ctx.resume().catch(() => {})
       loadSongBuffer(ctx).catch(() => {})
     } else {
+      // Unlock the song element within the gesture: play it muted (silent) from
+      // 0:52 so it's genuinely playing (and pre-buffered) and can simply be
+      // unmuted — no fresh gesture needed — once the intro finishes.
       const audio = fallbackAudioRef.current
       if (audio) {
+        try { audio.currentTime = SONG_START } catch { /* not seekable yet */ }
         audio.muted = true
         audio.play().catch(() => {})
       }
@@ -303,7 +315,7 @@ function App() {
         setMusicOn(false)
       } else {
         audio.muted = false
-        audio.volume = SONG_VOLUME
+        audio.volume = 1 // volume is baked into song.mp3
         audio.play().catch(() => {})
         setMusicOn(true)
       }
@@ -353,13 +365,14 @@ function App() {
         <div className="invitation__bg" aria-hidden="true" />
 
         <section className="hero" aria-label="رسالة ترحيبية">
-          <img
-            key={overlayGone ? 'flower-playing' : 'flower-waiting'}
-            className="hero__flower"
-            src={flowerGif}
-            alt=""
-            aria-hidden="true"
-          />
+          {flowerSrc && (
+            <img
+              className="hero__flower"
+              src={flowerSrc}
+              alt=""
+              aria-hidden="true"
+            />
+          )}
           <img
             className="hero__bismillah"
             src={bismillahImage}
