@@ -30,6 +30,33 @@ const paperImage      = '/Assets/Images/paper.png'
 const treeImage       = '/Assets/Images/tree.png'
 const hallImage       = '/Assets/Images/hall.png'
 
+// Slim gold flourish used to separate the sections — a hairline that fades at
+// both ends with a small diamond bead threaded on its centre.
+function SectionDivider() {
+  return (
+    <div className="divider" aria-hidden="true" data-fade>
+      <svg viewBox="0 0 240 20" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="divider-gold" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0"   stopColor="#c8a24a" stopOpacity="0" />
+            <stop offset="0.5" stopColor="#d4af37" stopOpacity="0.75" />
+            <stop offset="1"   stopColor="#c8a24a" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <line x1="14" y1="10" x2="226" y2="10" stroke="url(#divider-gold)" strokeWidth="1" />
+        <rect
+          x="113.5" y="3.5" width="13" height="13"
+          transform="rotate(45 120 10)"
+          fill="none" stroke="#c8a24a" strokeWidth="1" opacity="0.85"
+        />
+        <circle cx="120" cy="10" r="1.6" fill="#d4af37" />
+        <circle cx="92"  cy="10" r="1"   fill="#c8a24a" opacity="0.7" />
+        <circle cx="148" cy="10" r="1"   fill="#c8a24a" opacity="0.7" />
+      </svg>
+    </div>
+  )
+}
+
 function App() {
   const videoRef = useRef(null)
   const fallbackAudioRef = useRef(null)
@@ -50,6 +77,7 @@ function App() {
   const [isFinished, setIsFinished] = useState(false)
   const [overlayGone, setOverlayGone] = useState(false)
   const [musicOn, setMusicOn] = useState(true)
+  const [hideScrollHint, setHideScrollHint] = useState(false)
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
 
   useEffect(() => {
@@ -156,6 +184,16 @@ function App() {
       document.removeEventListener('touchmove', preventScroll)
     }
   }, [overlayGone])
+
+  // Hide the gold scroll indicator once the guest begins scrolling the content.
+  useEffect(() => {
+    if (!isFinished) return
+    const onScroll = () => {
+      if (window.scrollY > 40) setHideScrollHint(true)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isFinished])
 
   // After the overlay is removed from the DOM, iOS Safari can leave a stale
   // paint of the old fixed video layer (the "white box" the content scrolls
@@ -356,7 +394,7 @@ function App() {
           audio.currentTime = SONG_START
           audio.play().catch(() => {})
         }}
-      />
+      /> 
       <main
         className={`invitation${isFinished ? ' invitation--visible' : ''}`}
         aria-label="دعوة زفاف"
@@ -381,11 +419,13 @@ function App() {
             style={{ transitionDelay: '0.4s' }}
           />
           <div className="hero__message" dir="rtl" lang="ar">
-            <p className="hero__line hero__line--1" data-fade style={{ transitionDelay: '1.6s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
-            <p className="hero__line hero__line--2" data-fade style={{ transitionDelay: '2.8s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
-            <p className="hero__line hero__line--3" data-fade style={{ transitionDelay: '4s'   }}>صحبة العمر، أحباء الروح، بكل الحب</p>
+            <p className="hero__line hero__line--1 hero__line--draw" data-fade style={{ transitionDelay: '1.6s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
+            <p className="hero__line hero__line--2 hero__line--draw" data-fade style={{ transitionDelay: '2.8s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
+            <p className="hero__line hero__line--3 hero__line--draw" data-fade style={{ transitionDelay: '4s'   }}>صحبة العمر، أحباء الروح، بكل الحب</p>
           </div>
         </section>
+
+        <SectionDivider />
 
         <section className="families" dir="rtl" lang="ar" aria-label="دعوة الأسر">
           <div className="families__text">
@@ -403,6 +443,8 @@ function App() {
             style={{ transitionDelay: '1.2s' }}
           />
         </section>
+
+        <SectionDivider />
 
         <section className="venue" aria-label="تفاصيل الحفل">
           <div className="venue__paper">
@@ -424,7 +466,7 @@ function App() {
           <img className="venue__tree" src={treeImage} alt="" aria-hidden="true" />
 
           <div className="venue__content">
-            <p className="venue__blessing" dir="rtl" lang="ar" data-fade>
+            <p className="venue__blessing hero__line--draw" dir="rtl" lang="ar" data-fade>
               و ذلك بمشيئة الله تعالى
             </p>
             <div className="venue__details" data-fade style={{ transitionDelay: '0.35s' }}>
@@ -491,6 +533,34 @@ function App() {
         </button>
       )}
 
+      {isFinished && (
+        <div className="petals" aria-hidden="true">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <span className={`petal petal--${i + 1}`} key={i} />
+          ))}
+        </div>
+      )}
+
+      {isFinished && (
+        <div
+          className={`scroll-indicator${hideScrollHint ? ' scroll-indicator--hidden' : ''}`}
+          aria-hidden="true"
+        >
+          {/* <span className="scroll-indicator__line" /> */}
+          <svg
+            className="scroll-indicator__arrow"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      )}
+
       {!overlayGone && (
         <div
           className={`intro${isFinished ? ' intro--fading' : ''}`}
@@ -545,6 +615,12 @@ function App() {
               aria-hidden="true"
               onTransitionEnd={() => setCoverDone(true)}
             />
+          )}
+          {!hasStarted && (
+            <>
+              <div className="intro__shimmer" aria-hidden="true" />
+              {/* <span className="intro__tap" aria-hidden="true">اضغط للبدء</span> */}
+            </>
           )}
         </div>
       )}
