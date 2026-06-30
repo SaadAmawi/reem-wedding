@@ -30,33 +30,6 @@ const paperImage      = '/Assets/Images/paper.png'
 const treeImage       = '/Assets/Images/tree.png'
 const hallImage       = '/Assets/Images/hall.png'
 
-// Slim gold flourish used to separate the sections — a hairline that fades at
-// both ends with a small diamond bead threaded on its centre.
-function SectionDivider() {
-  return (
-    <div className="divider" aria-hidden="true" data-fade>
-      <svg viewBox="0 0 240 20" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="divider-gold" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0"   stopColor="#c8a24a" stopOpacity="0" />
-            <stop offset="0.5" stopColor="#d4af37" stopOpacity="0.75" />
-            <stop offset="1"   stopColor="#c8a24a" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <line x1="14" y1="10" x2="226" y2="10" stroke="url(#divider-gold)" strokeWidth="1" />
-        <rect
-          x="113.5" y="3.5" width="13" height="13"
-          transform="rotate(45 120 10)"
-          fill="none" stroke="#c8a24a" strokeWidth="1" opacity="0.85"
-        />
-        <circle cx="120" cy="10" r="1.6" fill="#d4af37" />
-        <circle cx="92"  cy="10" r="1"   fill="#c8a24a" opacity="0.7" />
-        <circle cx="148" cy="10" r="1"   fill="#c8a24a" opacity="0.7" />
-      </svg>
-    </div>
-  )
-}
-
 function App() {
   const videoRef = useRef(null)
   const fallbackAudioRef = useRef(null)
@@ -425,8 +398,6 @@ function App() {
           </div>
         </section>
 
-        <SectionDivider />
-
         <section className="families" dir="rtl" lang="ar" aria-label="دعوة الأسر">
           <div className="families__text">
             <p className="families__honor"  data-fade style={{ transitionDelay: '0s' }}>تتشرف</p>
@@ -443,8 +414,6 @@ function App() {
             style={{ transitionDelay: '1.2s' }}
           />
         </section>
-
-        <SectionDivider />
 
         <section className="venue" aria-label="تفاصيل الحفل">
           <div className="venue__paper">

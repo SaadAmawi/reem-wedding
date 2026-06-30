@@ -283,29 +283,13 @@ body {
 }
 
 .hero__line--draw.is-visible {
-  animation: draw-on 2.8s ease both;
+  animation: draw-on 1.6s ease both;
 }
 
 /* Match the draw timing to each hero line's staggered fade-in. */
 .hero__line--1.is-visible { animation-delay: 1.6s; }
 .hero__line--2.is-visible { animation-delay: 2.8s; }
 .hero__line--3.is-visible { animation-delay: 4s; }
-
-/* ── Section divider — slim gold flourish ───────────── */
-.divider {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  margin: 0.5rem 0 1.5rem;
-  pointer-events: none;
-}
-
-.divider svg {
-  width: min(60%, 260px);
-  height: auto;
-  overflow: visible;
-}
 
 
 /* Lock scrolling while the intro overlay is shown. */
@@ -461,7 +445,7 @@ html.intro-lock body {
   );
   transform: skewX(-16deg);
   mix-blend-mode: screen;
-  animation: intro-shimmer 5.2s ease-in-out infinite;
+  animation: intro-shimmer 4.2s ease-in-out infinite;
 }
 
 @keyframes intro-shimmer {
