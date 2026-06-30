@@ -547,10 +547,10 @@ html.intro-lock body {
 }
 
 .scroll-indicator__arrow {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   color: #d4af37;
-  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.55));
+  filter: drop-shadow(0 0 1px rgba(212, 175, 55, 0.886));
   animation: scroll-bob 2.3s ease-in-out infinite;
 }
 
