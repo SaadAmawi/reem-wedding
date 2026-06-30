@@ -18,8 +18,8 @@ const getTimeLeft = () => {
 }
 
 const songUrl         = '/Assets/songs/song.mp3'
-const SONG_START      = 52   // start playback at 0:52
-const SONG_VOLUME     = 0.35 // 0–1; lowered so it stays in the background
+const SONG_START      = 0   // start playback at 0:52
+const SONG_VOLUME     = 0.2 // 0–1; lowered so it stays in the background
 
 const introVideo      = '/Assets/Videos/Intro-Video.mp4'
 const firstFrameImage = '/Assets/Images/intro-first-frame.jpg'
