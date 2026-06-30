@@ -18,7 +18,7 @@ const getTimeLeft = () => {
 }
 
 const songUrl         = '/Assets/songs/song.mp3'
-const SONG_START      = 0   // start playback at 0:52
+const SONG_START      = 0   // playback offset in seconds
 const SONG_VOLUME     = 0.2 // 0–1; lowered so it stays in the background
 
 const introVideo      = '/Assets/Videos/Intro-Video.mp4'
@@ -32,13 +32,17 @@ const hallImage       = '/Assets/Images/hall.png'
 
 function App() {
   const videoRef = useRef(null)
-  const audioRef = useRef(null)
+  const fallbackAudioRef = useRef(null)
   const isStartingRef = useRef(false)
   const durationRef = useRef(0)
   const finishTimerRef = useRef(null)
   const audioCtxRef = useRef(null)
   const gainRef = useRef(null)
   const sourceRef = useRef(null)
+  const keepAliveRef = useRef(null)
+  const songDataPromiseRef = useRef(null)
+  const songBufferPromiseRef = useRef(null)
+  const songStartPromiseRef = useRef(null)
   const [hasStarted, setHasStarted] = useState(false)
   const [coverDone, setCoverDone] = useState(false)
   const [isFinished, setIsFinished] = useState(false)
@@ -49,6 +53,15 @@ function App() {
   useEffect(() => {
     const id = setInterval(() => setTimeLeft(getTimeLeft()), 1000)
     return () => clearInterval(id)
+  }, [])
+
+  useEffect(() => {
+    if (!songDataPromiseRef.current) {
+      songDataPromiseRef.current = fetch(songUrl).then((response) => {
+        if (!response.ok) throw new Error(`Song request failed: ${response.status}`)
+        return response.arrayBuffer()
+      })
+    }
   }, [])
 
   useEffect(() => {
@@ -103,29 +116,6 @@ function App() {
     }
   }, [isFinished])
 
-  // Start the song from 0:52 once the intro transition begins. It was already
-  // unlocked inside the tap gesture, so playing now is allowed. The gain node
-  // fades the (lowered) volume in smoothly.
-  useEffect(() => {
-    if (!isFinished || !musicOn) return
-    const a = audioRef.current
-    if (!a) return
-    const ctx = audioCtxRef.current
-    if (ctx?.state === 'suspended') ctx.resume().catch(() => {})
-    try { a.currentTime = SONG_START } catch { /* not seekable yet */ }
-    a.play().then(() => {
-      const gain = gainRef.current
-      if (ctx && gain) {
-        const now = ctx.currentTime
-        gain.gain.cancelScheduledValues(now)
-        gain.gain.setValueAtTime(gain.gain.value, now)
-        gain.gain.linearRampToValueAtTime(SONG_VOLUME, now + 1.2)
-      } else {
-        a.volume = SONG_VOLUME
-      }
-    }).catch(() => { /* autoplay blocked; nothing else we can do */ })
-  }, [isFinished, musicOn])
-
   // Lock page scrolling while the intro overlay is up, so the user can't scroll
   // the content behind it (and so iOS can't hide the address bar and expose a
   // strip below the overlay). overflow:hidden alone isn't enough on iOS Safari,
@@ -163,49 +153,125 @@ function App() {
     requestAnimationFrame(forceRepaint)
   }, [overlayGone])
 
-  // Route the song through a Web Audio gain node so we can actually lower the
-  // volume — iOS ignores HTMLAudioElement.volume, but it respects gain. Created
-  // lazily inside a user gesture (AudioContext starts suspended otherwise).
-  const setupAudioGraph = useCallback(() => {
-    const a = audioRef.current
-    if (!a || sourceRef.current) return
+  // Build and wake Web Audio from the original gesture. A silent oscillator
+  // keeps the context active while iOS hands media playback to the intro video.
+  const setupAudioEngine = useCallback(() => {
+    if (audioCtxRef.current) return audioCtxRef.current
     try {
       const AC = window.AudioContext || window.webkitAudioContext
+      if (!AC) return null
       const ctx = new AC()
-      const source = ctx.createMediaElementSource(a)
       const gain = ctx.createGain()
-      gain.gain.value = 0 // silent until the transition fades it up
-      source.connect(gain).connect(ctx.destination)
+      gain.gain.value = 0
+      gain.connect(ctx.destination)
+
+      const keepAliveGain = ctx.createGain()
+      const keepAlive = ctx.createOscillator()
+      keepAliveGain.gain.value = 0
+      keepAlive.connect(keepAliveGain).connect(ctx.destination)
+      keepAlive.start()
+
       audioCtxRef.current = ctx
       gainRef.current = gain
-      sourceRef.current = source
+      keepAliveRef.current = keepAlive
+      return ctx
     } catch {
-      // Web Audio unavailable — fall back to element volume (works off iOS).
-      a.volume = SONG_VOLUME
+      return null
     }
   }, [])
+
+  const loadSongBuffer = useCallback((ctx) => {
+    if (!ctx) return Promise.reject(new Error('Web Audio unavailable'))
+    if (!songDataPromiseRef.current) {
+      songDataPromiseRef.current = fetch(songUrl).then((response) => {
+        if (!response.ok) throw new Error(`Song request failed: ${response.status}`)
+        return response.arrayBuffer()
+      })
+    }
+    if (!songBufferPromiseRef.current) {
+      songBufferPromiseRef.current = songDataPromiseRef.current.then((data) =>
+        ctx.decodeAudioData(data.slice(0))
+      )
+    }
+    return songBufferPromiseRef.current
+  }, [])
+
+  const startBufferedSong = useCallback(async (fadeIn = true) => {
+    const ctx = audioCtxRef.current
+    const gain = gainRef.current
+    if (!ctx || !gain) return
+
+    if (ctx.state === 'suspended') {
+      await ctx.resume().catch(() => {})
+    }
+
+    if (!sourceRef.current) {
+      if (!songStartPromiseRef.current) {
+        songStartPromiseRef.current = loadSongBuffer(ctx)
+          .then((buffer) => {
+            const source = ctx.createBufferSource()
+            source.buffer = buffer
+            source.loop = true
+            source.loopStart = Math.min(SONG_START, buffer.duration)
+            source.connect(gain)
+            source.start(0, Math.min(SONG_START, buffer.duration))
+            sourceRef.current = source
+          })
+          .catch(() => {
+            songStartPromiseRef.current = null
+          })
+      }
+      await songStartPromiseRef.current
+      if (!sourceRef.current) return
+    }
+
+    const now = ctx.currentTime
+    gain.gain.cancelScheduledValues(now)
+    gain.gain.setValueAtTime(gain.gain.value, now)
+    if (fadeIn) {
+      gain.gain.linearRampToValueAtTime(SONG_VOLUME, now + 1.2)
+    } else {
+      gain.gain.setValueAtTime(SONG_VOLUME, now)
+    }
+
+    if (keepAliveRef.current) {
+      try { keepAliveRef.current.stop() } catch { /* already stopped */ }
+      keepAliveRef.current = null
+    }
+  }, [loadSongBuffer])
+
+  useEffect(() => {
+    if (!isFinished || !musicOn) return
+    if (audioCtxRef.current) {
+      startBufferedSong(true)
+      return
+    }
+
+    const audio = fallbackAudioRef.current
+    if (!audio) return
+    try { audio.currentTime = SONG_START } catch { /* not seekable yet */ }
+    audio.muted = false
+    audio.volume = SONG_VOLUME
+    audio.play().catch(() => {})
+  }, [isFinished, musicOn, startBufferedSong])
 
   const startIntro = useCallback(async () => {
     if (hasStarted || isFinished || isStartingRef.current || !videoRef.current) return
     isStartingRef.current = true
     setHasStarted(true)
 
-    // IMPORTANT: do all audio unlocking synchronously, BEFORE any `await`.
-    // iOS revokes the user-activation after the first await, and both
-    // AudioContext.resume() and the song's first play() must happen inside the
-    // gesture. Build the graph (gain at 0, so silent), wake the context, then
-    // unlock the song and park it (paused) at 0:52 so it's pre-buffered and
-    // starts instantly when the intro finishes.
-    setupAudioGraph()
-    if (audioCtxRef.current?.state === 'suspended') {
-      audioCtxRef.current.resume().catch(() => {})
-    }
-    const a = audioRef.current
-    if (a) {
-      a.play().then(() => {
-        a.pause()
-        try { a.currentTime = SONG_START } catch { /* not seekable yet */ }
-      }).catch(() => { /* will retry on finish */ })
+    // iOS only allows an AudioContext to start inside a user gesture. Wake it
+    // before the first await, then decode the preloaded song during the intro.
+    const ctx = setupAudioEngine()
+    if (ctx) {
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {})
+      loadSongBuffer(ctx).catch(() => {})
+    } else {
+      const audio = fallbackAudioRef.current
+      if (audio) {
+        audio.muted = true
+        audio.play().catch(() => {})
+      }
     }
 
     try {
@@ -223,23 +289,38 @@ function App() {
     } finally {
       isStartingRef.current = false
     }
-  }, [hasStarted, isFinished, setupAudioGraph])
+  }, [hasStarted, isFinished, loadSongBuffer, setupAudioEngine])
 
   // Subtle corner control to stop / resume the background music.
   const toggleMusic = useCallback(() => {
-    const a = audioRef.current
-    if (!a) return
+    const ctx = audioCtxRef.current
+    const gain = gainRef.current
+    if (!ctx || !gain) {
+      const audio = fallbackAudioRef.current
+      if (!audio) return
+      if (musicOn) {
+        audio.pause()
+        setMusicOn(false)
+      } else {
+        audio.muted = false
+        audio.volume = SONG_VOLUME
+        audio.play().catch(() => {})
+        setMusicOn(true)
+      }
+      return
+    }
+
+    const now = ctx.currentTime
+    gain.gain.cancelScheduledValues(now)
     if (musicOn) {
-      a.pause()
+      gain.gain.setValueAtTime(gain.gain.value, now)
+      gain.gain.linearRampToValueAtTime(0, now + 0.2)
       setMusicOn(false)
     } else {
-      if (audioCtxRef.current?.state === 'suspended') {
-        audioCtxRef.current.resume().catch(() => {})
-      }
-      a.play().catch(() => {})
       setMusicOn(true)
+      startBufferedSong(false)
     }
-  }, [musicOn])
+  }, [musicOn, startBufferedSong])
 
   // Start the intro on the FIRST gesture of any kind, anywhere on the page —
   // touch, key, scroll/wheel or mouse — not just a click on the overlay.
@@ -254,18 +335,14 @@ function App() {
   return (
     <>
       <audio
-        ref={audioRef}
+        ref={fallbackAudioRef}
         src={songUrl}
         preload="auto"
         playsInline
-        onLoadedMetadata={(e) => {
-          try { e.currentTarget.currentTime = SONG_START } catch { /* ignore */ }
-        }}
-        onEnded={(e) => {
-          // Loop, but always from 0:52 (skip the intro portion of the track).
-          const a = e.currentTarget
-          a.currentTime = SONG_START
-          a.play().catch(() => {})
+        onEnded={(event) => {
+          const audio = event.currentTarget
+          audio.currentTime = SONG_START
+          audio.play().catch(() => {})
         }}
       />
       <main
@@ -373,8 +450,6 @@ function App() {
             className="venue__hall"
             src={hallImage}
             alt="قاعة الليسيلي"
-            data-fade
-            style={{ transitionDelay: '0s' }}
           />
         </section>
       </main>

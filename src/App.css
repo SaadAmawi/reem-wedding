@@ -7,7 +7,7 @@ body {
   position: relative;
   min-height: 100vh;
   min-height: 100svh;
-  overflow-x: clip;
+  overflow-x: hidden;
   background-color: #f5ede3;
 }
 
@@ -68,7 +68,7 @@ body {
 /* Message block — lower portion */
 .hero__message {
   position: absolute;
-  bottom: 45%;
+  bottom: 40%;
   left: 0;
   right: 0;
   padding: 0 2rem;
@@ -146,7 +146,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-x: clip;
+  overflow-x: hidden;
   z-index: 1;
   padding-top: 2vh;
 }
@@ -276,7 +276,6 @@ body {
 html.intro-lock,
 html.intro-lock body {
   overflow: hidden;
-  height: 100%;
   overscroll-behavior: none;
   touch-action: none;
 }
