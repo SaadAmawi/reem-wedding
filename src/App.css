@@ -38,7 +38,7 @@ body {
 .hero {
   position: relative;
   min-height: 100vh;
-  min-height: 140svh;
+  min-height: 110svh;
   z-index: 1;
 }
 
@@ -52,10 +52,26 @@ body {
   display: block;
 }
 
+/* Families title — sits just above the Bismillah */
+.hero__title {
+  position: absolute;
+  top: 29%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-family: "Amiri", serif;
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #5d6741;
+}
+
 /* Bismillah — upper third */
 .hero__bismillah {
   position: absolute;
-  top: 32%;
+  top: 48%;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -68,7 +84,7 @@ body {
 /* Message block — lower portion */
 .hero__message {
   position: absolute;
-  bottom: 40%;
+  bottom: 18%;
   left: 0;
   right: 0;
   padding: 0 2rem;
@@ -138,11 +154,17 @@ body {
   mix-blend-mode: multiply;
 }
 
+.families__duaa {
+  margin-bottom:4rem;
+  width: 120%;
+  mix-blend-mode: multiply;
+}
+
 /* ── Venue / third section ──────────────────────────── */
 .venue {
   position: relative;
-  min-height: 62vh;
-  min-height: 62svh;
+  min-height: 82vh;
+  min-height: 82svh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -172,7 +194,18 @@ body {
   align-items: center;
   justify-content: center;
   gap: 1.6rem;
-  direction: rtl;
+  direction: ltr;
+}
+
+/* Phrase sitting on the cream background, just above the paper banner. */
+.venue__countdown-caption {
+  align-self: stretch;
+  font-family: "Amiri", serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: #5d6741;
+  text-align: center;
+  margin: 0 0 -3rem;
 }
 
 .venue__countdown-unit {
@@ -201,7 +234,7 @@ body {
 .venue__tree {
   position: absolute;
   left: 0px;
-  bottom: 32%;
+  bottom: 48%;
   width: 102%;
   pointer-events: none;
   z-index: 1;
@@ -214,7 +247,7 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 0 2rem 2rem;
-  margin-top: 400px;
+  margin-top: 200px;
 }
 
 .venue__blessing {
@@ -222,7 +255,7 @@ body {
   font-size: 1.5rem;
   font-weight: 400;
   color: #5d6741;
-  margin: 0 0 6.4rem;
+  margin: 4rem 0 5rem;
   margin-left:160px;
 }
 
@@ -248,6 +281,43 @@ body {
 .venue__detail svg {
   width: 56px;
   height: 56px;
+  color: #5d6741;
+}
+
+/* Closing welcome line above the etiquette notes */
+.venue__welcome {
+  font-family: "Katibeh", serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #5d6741;
+  text-align: center;
+  margin: 4.5rem 0 0;
+}
+
+/* Etiquette icons — no children, no photography */
+.venue__notes {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 3.2rem;
+}
+
+.venue__note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Kufam', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5d6741;
+  text-align: center;
+  text-wrap: nowrap;
+}
+
+.venue__note svg {
+  width: 44px;
+  height: 44px;
   color: #5d6741;
 }
 
@@ -286,10 +356,12 @@ body {
   animation: draw-on 1.6s ease both;
 }
 
-/* Match the draw timing to each hero line's staggered fade-in. */
-.hero__line--1.is-visible { animation-delay: 1.6s; }
-.hero__line--2.is-visible { animation-delay: 2.8s; }
-.hero__line--3.is-visible { animation-delay: 4s; }
+/* Match the draw timing to each element's staggered fade-in so the hero
+ * reveals one piece at a time: title → Bismillah → line 1 → 2 → 3. */
+.hero__title.is-visible  { animation-delay: 0.3s; }
+.hero__line--1.is-visible { animation-delay: 3.2s; }
+.hero__line--2.is-visible { animation-delay: 4.4s; }
+.hero__line--3.is-visible { animation-delay: 5.6s; }
 
 
 /* Lock scrolling while the intro overlay is shown. */

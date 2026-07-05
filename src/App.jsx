@@ -3,9 +3,6 @@ import './App.css'
 
 const WEDDING_DATE = new Date(2026, 7, 22, 20, 0, 0) // Aug 22 2026, 8 PM
 
-const toArabic = (n) =>
-  String(n).padStart(2, '0').replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d])
-
 const getTimeLeft = () => {
   const diff = WEDDING_DATE - Date.now()
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
@@ -26,6 +23,7 @@ const firstFrameImage = '/Assets/Images/intro-first-frame.jpg'
 const flowerGif       = '/Assets/Images/flower.webp'
 const bismillahImage  = '/Assets/Images/Bismillah.png'
 const coupleNamesImage = '/Assets/Images/CoupleNames.png'
+const duaaImage       = '/Assets/Images/duaa.png'
 const paperImage      = '/Assets/Images/paper.png'
 const treeImage       = '/Assets/Images/tree.png'
 const hallImage       = '/Assets/Images/hall.png'
@@ -384,17 +382,26 @@ function App() {
               aria-hidden="true"
             />
           )}
+          <p
+            className="hero__title hero__line--draw"
+            dir="rtl"
+            lang="ar"
+            data-fade
+            style={{ transitionDelay: '0.3s' }}
+          >
+            أفراح<br/> الشمالي والخييلي
+          </p>
           <img
             className="hero__bismillah"
             src={bismillahImage}
             alt="بسم الله الرحمن الرحيم"
             data-fade
-            style={{ transitionDelay: '0.4s' }}
+            style={{ transitionDelay: '2s' }}
           />
           <div className="hero__message" dir="rtl" lang="ar">
-            <p className="hero__line hero__line--1 hero__line--draw" data-fade style={{ transitionDelay: '1.6s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
-            <p className="hero__line hero__line--2 hero__line--draw" data-fade style={{ transitionDelay: '2.8s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
-            <p className="hero__line hero__line--3 hero__line--draw" data-fade style={{ transitionDelay: '4s'   }}>صحبة العمر، أحباء الروح، بكل الحب</p>
+            <p className="hero__line hero__line--1 hero__line--draw" data-fade style={{ transitionDelay: '3.2s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
+            <p className="hero__line hero__line--2 hero__line--draw" data-fade style={{ transitionDelay: '4.4s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
+            <p className="hero__line hero__line--3 hero__line--draw" data-fade style={{ transitionDelay: '5.6s' }}>صحبة العمر، أحباء الروح، بكل الحب</p>
           </div>
         </section>
 
@@ -403,7 +410,7 @@ function App() {
             <p className="families__honor"  data-fade style={{ transitionDelay: '0s' }}>تتشرف</p>
             <p className="families__name"   data-fade style={{ transitionDelay: '0.25s' }}>عائلة السيد/ أحمد حمزة الشمالي</p>
             <p className="families__and"    data-fade style={{ transitionDelay: '0.45s' }}>و</p>
-            <p className="families__name"   data-fade style={{ transitionDelay: '0.65s' }}>عائلة السيد/ شهاب سالم الحبيلي</p>
+            <p className="families__name"   data-fade style={{ transitionDelay: '0.65s' }}>عائلة السيد/ شهاب سالم الخييلي</p>
             <p className="families__invite" data-fade style={{ transitionDelay: '0.85s' }}>بدعوتكم لحضور حفل زفاف نجليهما</p>
           </div>
           <img
@@ -413,20 +420,30 @@ function App() {
             data-fade
             style={{ transitionDelay: '1.2s' }}
           />
+          <img
+            className="families__duaa"
+            src={duaaImage}
+            alt="دعاء"
+            data-fade
+            style={{ transitionDelay: '1.5s' }}
+          />
+          <p className="venue__countdown-caption" dir="rtl" lang="ar" data-fade style={{ transitionDelay: '1.8s' }}>
+            أيام تفصلنا عن فرحتنا
+          </p>
         </section>
 
         <section className="venue" aria-label="تفاصيل الحفل">
           <div className="venue__paper">
             <img className="venue__paper-img" src={paperImage} alt="" aria-hidden="true" />
-            <div className="venue__countdown" dir="rtl" lang="ar" aria-live="off">
+            <div className="venue__countdown" dir="ltr" lang="en" aria-live="off">
               {[
-                { value: timeLeft.days,    label: 'يوم'   },
-                { value: timeLeft.hours,   label: 'ساعة'  },
-                { value: timeLeft.minutes, label: 'دقيقة' },
-                { value: timeLeft.seconds, label: 'ثانية' },
+                { value: timeLeft.days,    label: 'Days'    },
+                { value: timeLeft.hours,   label: 'Hours'   },
+                { value: timeLeft.minutes, label: 'Minutes' },
+                { value: timeLeft.seconds, label: 'Seconds' },
               ].map(({ value, label }) => (
                 <div className="venue__countdown-unit" key={label}>
-                  <span className="venue__countdown-number">{toArabic(value)}</span>
+                  <span className="venue__countdown-number">{String(value).padStart(2, '0')}</span>
                   <span className="venue__countdown-label">{label}</span>
                 </div>
               ))}
@@ -444,7 +461,7 @@ function App() {
                   <path d="M12 21s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z"/>
                   <circle cx="12" cy="9" r="2.5"/>
                 </svg>
-                <span>Al lesaili halls</span>
+                <span>قاعة الليسيلي، دبي</span>
               </div>
               <div className="venue__detail">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
@@ -466,6 +483,29 @@ function App() {
                   <polyline points="12,7 12,12 15.5,14.5"/>
                 </svg>
                 <span>08:00 – 12:00 pm</span>
+              </div>
+            </div>
+
+            <p className="venue__welcome" dir="rtl" lang="ar" data-fade style={{ transitionDelay: '0.5s' }}>
+              بحضوركم تكتمل فرحتنا
+            </p>
+
+            <div className="venue__notes" data-fade style={{ transitionDelay: '0.65s' }}>
+              <div className="venue__note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
+                  <circle cx="12" cy="7" r="2.6"/>
+                  <path d="M7.5 20v-3.6a4.5 4.5 0 0 1 9 0V20"/>
+                  <line x1="4.5" y1="4" x2="19.5" y2="20" strokeWidth="1.3" strokeLinecap="round"/>
+                </svg>
+                <span>ممنوع الأطفال</span>
+              </div>
+              <div className="venue__note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
+                  <path d="M4 8h3l1.3-2h7.4L18 8h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
+                  <circle cx="12" cy="13" r="3"/>
+                  <line x1="4.5" y1="4" x2="19.5" y2="20" strokeWidth="1.3" strokeLinecap="round"/>
+                </svg>
+                <span>ممنوع التصوير</span>
               </div>
             </div>
           </div>
