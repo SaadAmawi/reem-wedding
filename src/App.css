@@ -284,6 +284,13 @@ body {
   color: #5d6741;
 }
 
+/* Location name uses the main display font, like the rest of the invitation */
+.venue__detail--place {
+  font-family: "Katibeh", serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
 /* Closing welcome line above the etiquette notes */
 .venue__welcome {
   font-family: "Katibeh", serif;
@@ -298,27 +305,15 @@ body {
 .venue__notes {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 3rem;
   margin-top: 3.2rem;
 }
 
-.venue__note {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: 'Kufam', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #5d6741;
-  text-align: center;
-  text-wrap: nowrap;
-}
-
-.venue__note svg {
-  width: 44px;
-  height: 44px;
-  color: #5d6741;
+.venue__note-icon {
+  width: 56px;
+  height: auto;
+  display: block;
 }
 
 .venue__hall {
@@ -353,15 +348,23 @@ body {
 }
 
 .hero__line--draw.is-visible {
-  animation: draw-on 1.6s ease both;
+  animation: draw-on 6.6s ease both;
+}
+.hero__line--draw.is-visible-2 {
+  animation: draw-on 3.6s ease both;
+}
+
+/* Slow, gentle fade for the hero pieces specifically. */
+.hero [data-fade] {
+  transition-duration: 1.2s;
 }
 
 /* Match the draw timing to each element's staggered fade-in so the hero
  * reveals one piece at a time: title → Bismillah → line 1 → 2 → 3. */
-.hero__title.is-visible  { animation-delay: 0.3s; }
-.hero__line--1.is-visible { animation-delay: 3.2s; }
-.hero__line--2.is-visible { animation-delay: 4.4s; }
-.hero__line--3.is-visible { animation-delay: 5.6s; }
+.hero__title.is-visible  { animation-delay: 0.2s; }
+.hero__line--1.is-visible { animation-delay: 2.0s; }
+.hero__line--2.is-visible { animation-delay: 3.3s; }
+.hero__line--3.is-visible { animation-delay: 4.6s; }
 
 
 /* Lock scrolling while the intro overlay is shown. */

@@ -27,6 +27,8 @@ const duaaImage       = '/Assets/Images/duaa.png'
 const paperImage      = '/Assets/Images/paper.png'
 const treeImage       = '/Assets/Images/tree.png'
 const hallImage       = '/Assets/Images/hall.png'
+const noKidsImage     = '/Assets/Images/no_kids.png'
+const noPicsImage     = '/Assets/Images/no_pics.png'
 
 function App() {
   const videoRef = useRef(null)
@@ -90,7 +92,12 @@ function App() {
 
   useEffect(() => {
     if (!isFinished) return
-    const reveal = (el) => el.classList.add('is-visible')
+    const reveal = (el) => {
+      el.classList.add('is-visible')
+      // Elements marked for a quicker draw-on also get is-visible-2, whose
+      // shorter animation wins (defined after is-visible at equal specificity).
+      if (el.hasAttribute('data-draw-fast')) el.classList.add('is-visible-2')
+    }
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -387,7 +394,7 @@ function App() {
             dir="rtl"
             lang="ar"
             data-fade
-            style={{ transitionDelay: '0.3s' }}
+            style={{ transitionDelay: '0.5s' }}
           >
             أفراح<br/> الشمالي والخييلي
           </p>
@@ -396,12 +403,12 @@ function App() {
             src={bismillahImage}
             alt="بسم الله الرحمن الرحيم"
             data-fade
-            style={{ transitionDelay: '2s' }}
+            style={{ transitionDelay: '3s' }}
           />
           <div className="hero__message" dir="rtl" lang="ar">
-            <p className="hero__line hero__line--1 hero__line--draw" data-fade style={{ transitionDelay: '3.2s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
-            <p className="hero__line hero__line--2 hero__line--draw" data-fade style={{ transitionDelay: '4.4s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
-            <p className="hero__line hero__line--3 hero__line--draw" data-fade style={{ transitionDelay: '5.6s' }}>صحبة العمر، أحباء الروح، بكل الحب</p>
+            <p className="hero__line hero__line--1 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '4.0s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
+            <p className="hero__line hero__line--2 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '5.2s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
+            <p className="hero__line hero__line--3 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '6.4s' }}>صحبة العمر، أحباء الروح، بكل الحب</p>
           </div>
         </section>
 
@@ -452,11 +459,11 @@ function App() {
           <img className="venue__tree" src={treeImage} alt="" aria-hidden="true" />
 
           <div className="venue__content">
-            <p className="venue__blessing hero__line--draw" dir="rtl" lang="ar" data-fade>
+            <p className="venue__blessing hero__line--draw" dir="rtl" lang="ar" data-fade data-draw-fast>
               و ذلك بمشيئة الله تعالى
             </p>
             <div className="venue__details" data-fade style={{ transitionDelay: '0.35s' }}>
-              <div className="venue__detail">
+              <div className="venue__detail venue__detail--place">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
                   <path d="M12 21s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z"/>
                   <circle cx="12" cy="9" r="2.5"/>
@@ -491,22 +498,8 @@ function App() {
             </p>
 
             <div className="venue__notes" data-fade style={{ transitionDelay: '0.65s' }}>
-              <div className="venue__note">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
-                  <circle cx="12" cy="7" r="2.6"/>
-                  <path d="M7.5 20v-3.6a4.5 4.5 0 0 1 9 0V20"/>
-                  <line x1="4.5" y1="4" x2="19.5" y2="20" strokeWidth="1.3" strokeLinecap="round"/>
-                </svg>
-                <span>ممنوع الأطفال</span>
-              </div>
-              <div className="venue__note">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
-                  <path d="M4 8h3l1.3-2h7.4L18 8h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
-                  <circle cx="12" cy="13" r="3"/>
-                  <line x1="4.5" y1="4" x2="19.5" y2="20" strokeWidth="1.3" strokeLinecap="round"/>
-                </svg>
-                <span>ممنوع التصوير</span>
-              </div>
+              <img className="venue__note-icon" src={noKidsImage} alt="ممنوع الأطفال" />
+              <img className="venue__note-icon" src={noPicsImage} alt="ممنوع التصوير" />
             </div>
           </div>
 
