@@ -173,6 +173,30 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [isFinished])
 
+  // Pause the music when the user leaves the tab / backgrounds Safari/Chrome,
+  // and resume it on return (unless they've muted). iOS fires visibilitychange
+  // when the app is switched away, so this reliably stops audio in the
+  // background instead of letting it keep playing.
+  useEffect(() => {
+    const onVisibility = () => {
+      const audio = fallbackAudioRef.current
+      const ctx = audioCtxRef.current
+      if (document.hidden) {
+        if (audio) audio.pause()
+        if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {})
+      } else if (isFinished && musicOn) {
+        if (ctx) ctx.resume().catch(() => {})
+        if (audio) audio.play().catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', onVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('pagehide', onVisibility)
+    }
+  }, [isFinished, musicOn])
+
   // After the overlay is removed from the DOM, iOS Safari can leave a stale
   // paint of the old fixed video layer (the "white box" the content scrolls
   // behind). Force a repaint/recomposite so the content shows immediately
@@ -406,9 +430,9 @@ function App() {
             style={{ transitionDelay: '3s' }}
           />
           <div className="hero__message" dir="rtl" lang="ar">
-            <p className="hero__line hero__line--1 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '4.8s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
-            <p className="hero__line hero__line--2 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '6.4s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
-            <p className="hero__line hero__line--3 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '7.8s' }}>صحبة العمر، أحباء الروح، بكل الحب</p>
+            <p className="hero__line hero__line--1 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '3.8s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
+            <p className="hero__line hero__line--2 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '5.4s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
+            <p className="hero__line hero__line--3 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '6.8s' }}>صحبة العمر، أحباء الروح، بكل الحب</p>
           </div>
         </section>
 
