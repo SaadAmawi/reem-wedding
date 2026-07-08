@@ -59,12 +59,18 @@ body {
   left: 0;
   right: 0;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 0.4rem;
+  /* Shrink-wrap the text so the draw-on wipe maps to the letters, not the
+   * empty side-margins of a full-width box. */
+  width: -webkit-fit-content;
+  width: fit-content;
+  max-width: 100%;
   text-align: center;
-  font-family: "Amiri", serif;
+  font-family: "Amiri";
   font-size: 1.7rem;
   font-weight: 400;
   line-height: 1.4;
+  z-index: 1;
   color: #5d6741;
 }
 
@@ -84,7 +90,7 @@ body {
 /* Message block — lower portion */
 .hero__message {
   position: absolute;
-  bottom: 18%;
+  bottom: 21%;
   left: 0;
   right: 0;
   padding: 0 2rem;
@@ -95,9 +101,13 @@ body {
   font-family: "Katibeh", serif;
   color: #5d6741;
   font-size: 2rem;
-  margin: 0;
+  margin: 0 auto;
   line-height: 1.75;
   opacity: 0;
+  /* Shrink-wrap so the draw-on wipe hugs the text (see .hero__title). */
+  width: -webkit-fit-content;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .hero__line--1,
@@ -284,11 +294,25 @@ body {
   color: #5d6741;
 }
 
-/* Location name uses the main display font, like the rest of the invitation */
+/* Location name uses the main display font, like the rest of the invitation.
+ * It's a link to Google Maps, so strip the default anchor styling. */
 .venue__detail--place {
   font-family: "Katibeh", serif;
   font-size: 1.15rem;
   font-weight: 400;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Gentle "pin drop" bob so guests notice the location is tappable (mobile has
+ * no hover, so the cue must be present at rest). */
+@keyframes pin-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+.venue__detail--place svg {
+  animation: pin-bob 2.4s ease-in-out infinite;
 }
 
 /* Closing welcome line above the etiquette notes */
@@ -347,11 +371,14 @@ body {
   to   { clip-path: inset(0 0 0 0);    -webkit-clip-path: inset(0 0 0 0); }
 }
 
+/* fill: backwards (not both) so once the draw finishes the element reverts to
+ * its unclipped base state — otherwise the held clip-path end-state crops the
+ * deep tail/descender of the last glyph (e.g. the final ya2). */
 .hero__line--draw.is-visible {
-  animation: draw-on 6.6s ease both;
+  animation: draw-on 2.8s linear backwards;
 }
 .hero__line--draw.is-visible-2 {
-  animation: draw-on 3.6s ease both;
+  animation: draw-on 1.6s linear backwards;
 }
 
 /* Slow, gentle fade for the hero pieces specifically. */
@@ -362,9 +389,9 @@ body {
 /* Match the draw timing to each element's staggered fade-in so the hero
  * reveals one piece at a time: title → Bismillah → line 1 → 2 → 3. */
 .hero__title.is-visible  { animation-delay: 0.2s; }
-.hero__line--1.is-visible { animation-delay: 2.0s; }
-.hero__line--2.is-visible { animation-delay: 3.3s; }
-.hero__line--3.is-visible { animation-delay: 4.6s; }
+.hero__line--1.is-visible { animation-delay: 4.8s; }
+.hero__line--2.is-visible { animation-delay: 6.4s; }
+.hero__line--3.is-visible { animation-delay: 7.8s; }
 
 
 /* Lock scrolling while the intro overlay is shown. */
@@ -450,26 +477,37 @@ html.intro-lock body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 58px;
+  height: 58px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(245, 237, 227, 0.55);
-  color: #5d6741;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: transparent;
+  color: #fde8c3;
   cursor: pointer;
-  opacity: 0.45;
-  transition: opacity 0.3s ease, transform 0.2s ease;
+  transition: transform 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   animation: music-toggle-in 0.6s ease-out both;
 }
 
+/* Logo background on its own layer so only its opacity is lowered,
+ * keeping the icon on top fully visible. */
+.music-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: url('/Assets/Images/logo-empty.png') center / cover no-repeat;
+  opacity: 0.75;
+}
+
 .music-toggle:hover,
 .music-toggle:focus-visible {
-  opacity: 0.95;
   outline: none;
+}
+.music-toggle:hover::before,
+.music-toggle:focus-visible::before {
+  opacity: 0.7;
 }
 
 .music-toggle:active {
@@ -477,13 +515,14 @@ html.intro-lock body {
 }
 
 .music-toggle svg {
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
 }
 
 @keyframes music-toggle-in {
   from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 0.45; transform: none; }
+  to   { opacity: 1; transform: none; }
 }
 
 /* ── Gold shimmer over the intro logo (tap cue) ─────── */
@@ -693,6 +732,7 @@ html.intro-lock body {
   .scroll-indicator__line::after,
   .scroll-indicator__arrow,
   .hero__line--draw.is-visible,
+  .venue__detail--place svg,
   .petal {
     animation: none;
   }

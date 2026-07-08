@@ -396,7 +396,7 @@ function App() {
             data-fade
             style={{ transitionDelay: '0.5s' }}
           >
-            أفراح<br/> الشمالي والخييلي
+            أفراح<br/> الشمالي والخييلي 
           </p>
           <img
             className="hero__bismillah"
@@ -406,9 +406,9 @@ function App() {
             style={{ transitionDelay: '3s' }}
           />
           <div className="hero__message" dir="rtl" lang="ar">
-            <p className="hero__line hero__line--1 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '4.0s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
-            <p className="hero__line hero__line--2 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '5.2s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
-            <p className="hero__line hero__line--3 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '6.4s' }}>صحبة العمر، أحباء الروح، بكل الحب</p>
+            <p className="hero__line hero__line--1 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '4.8s' }}>إلى من لامست قلوبهم شغاف قلوبنا</p>
+            <p className="hero__line hero__line--2 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '6.4s' }}>اليوم نقاسمكم سرورنا و جميل شعورنا</p>
+            <p className="hero__line hero__line--3 hero__line--draw" data-fade data-draw-fast style={{ transitionDelay: '7.8s' }}>صحبة العمر، أحباء الروح، بكل الحب</p>
           </div>
         </section>
 
@@ -463,13 +463,19 @@ function App() {
               و ذلك بمشيئة الله تعالى
             </p>
             <div className="venue__details" data-fade style={{ transitionDelay: '0.35s' }}>
-              <div className="venue__detail venue__detail--place">
+              <a
+                className="venue__detail venue__detail--place"
+                href="https://maps.app.goo.gl/vGTB8tKbfSXPAjsd6"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="افتح الموقع على خرائط جوجل"
+              >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
                   <path d="M12 21s-8-6.5-8-12a8 8 0 1 1 16 0c0 5.5-8 12-8 12z"/>
                   <circle cx="12" cy="9" r="2.5"/>
                 </svg>
                 <span>قاعة الليسيلي، دبي</span>
-              </div>
+              </a>
               <div className="venue__detail">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden="true">
                   <rect x="3" y="4" width="18" height="18" rx="2"/>
